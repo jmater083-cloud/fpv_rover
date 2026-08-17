@@ -1,6 +1,6 @@
 /*
 ================================================================================
-FPV Rover v2.5.1
+FPV Rover v2.5.2
 Units: United States of America (Fahrenheit, Volts, etc.)
 Contributing Authors:
  - James Mater
