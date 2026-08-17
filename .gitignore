@@ -1,0 +1,23 @@
+# Arduino / PlatformIO build outputs
+build/
+.pio/
+*.hex
+*.bin
+*.elf
+
+# VS Code workspace
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/c_cpp_properties.json
+
+# Python cache & virtual environment
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+
+# OS metadata
+.DS_Store
+Thumbs.db
