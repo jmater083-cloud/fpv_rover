@@ -1,0 +1,44 @@
+10070 bom
+10052 pcb
+10108 all the things
+scope reassemble
+
+
+#define EVE_FLASH_STATUS_BASIC          (0x00000002UL) // = 2UL
+#define EVE_FLASH_STATUS_DETACHED       (0x00000001UL) // = 1UL
+#define EVE_FLASH_STATUS_FULL           (0x00000003UL) // = 3UL
+#define EVE_FLASH_STATUS_INIT           (0x00000000UL) // = 0UL
+
+#define EVE_REG_FLASH_SIZE              (0x00309024UL) // = 3182628UL
+#define EVE_REG_FLASH_STATUS            (0x003025F0UL) // = 3155440UL
+
+#define EVE_ENC_CMD_FLASHATTACH         (0xFFFFFF49UL) // = 4294967113UL
+#define EVE_ENC_CMD_FLASHDETACH         (0xFFFFFF48UL) // = 4294967112UL
+#define EVE_ENC_CMD_FLASHERASE          (0xFFFFFF44UL) // = 4294967108UL
+#define EVE_ENC_CMD_FLASHFAST           (0xFFFFFF4AUL) // = 4294967114UL
+#define EVE_ENC_CMD_FLASHREAD           (0xFFFFFF46UL) // = 4294967110UL
+#define EVE_ENC_CMD_FLASHSOURCE         (0xFFFFFF4EUL) // = 4294967118UL
+#define EVE_ENC_CMD_FLASHSPIDESEL       (0xFFFFFF4BUL) // = 4294967115UL
+#define EVE_ENC_CMD_FLASHSPIRX          (0xFFFFFF4DUL) // = 4294967117UL
+#define EVE_ENC_CMD_FLASHSPITX          (0xFFFFFF4CUL) // = 4294967116UL
+#define EVE_ENC_CMD_FLASHUPDATE         (0xFFFFFF47UL) // = 4294967111UL
+#define EVE_ENC_CMD_FLASHWRITE          (0xFFFFFF45UL) // = 4294967109UL
+
+#define EVE_RAM_FLASH           0x800000UL
+#define EVE_RAM_FLASH_POSTBLOB  0x801000UL
+
+
+Commands for flash operation:
+ CMD_FLASHERASE – Erase all of flash
+ CMD_FLASHWRITE – Write data to flash
+ CMD_FLASHUPDATE – write data to flash, erasing if necessary
+ CMD_FLASHDETACH – detach from flash
+ CMD_FLASHATTACH – attach to flash
+ CMD_FLASHFAST – enter full-speed mode
+ CMD_FLASHSPIDESEL –SPI bus: deselect device
+ CMD_FLASHTX – SPI bus: write bytes
+ CMD_FLASHRX – SPI bus: read bytes
+ CMD_CLEARCACHE – clear the flash cache
+ CMD_FLASHSOURCE – specify the flash source address for the following coprocessor commands
+ CMD_VIDEOSTARTF – initialize video frame decoder
+ CMD_APPENDF – Read data from flash to RAM_DL

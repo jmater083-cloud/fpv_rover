@@ -1,0 +1,4 @@
+Make new logo (PNG/ ARGB)
+Add support for the external flash
+fix flash recover stuff in Reset_EVE_Coprocessor();
+Once flash is working, move logos and background to it.

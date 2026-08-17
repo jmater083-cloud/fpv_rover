@@ -1,0 +1,37 @@
+Quick test to identify the bus (multimeter on DC volts):
+
+Identify power pins
+One pin will be +V (often ~24V or ~5V depending on system).
+One pin will be GND (0V).
+Measure the two remaining pins (data lines):
+CAN bus: both sit around ~2.5V at idle and move together (one rises while the other falls when active).
+UART: one pin will toggle 0–5V or 0–3.3V. The other may be unused or steady.
+Analog joystick: the two lines will be steady voltages that shift smoothly when you move the joystick (often ~0.5–4.5V).
+If you want, send me these measurements:
+
+Pin voltages at idle (no movement)
+Pin voltages while moving the joystick
+Wire colors for each pin
+
+
+To unlock a  Jazzy Elite power chair, you must perform a specific sequence with the joystick or horn button, depending on which controller model you have. 
+Method 1: Horn Button (Standard for Most Elite Models)
+If your battery lights are scrolling back and forth or flashing, the chair is likely in "Lock Mode". 
+
+    Turn on the power.
+    Press the horn button twice within 10 seconds of the lights starting to scroll.
+    The lights should become steady, indicating the chair is unlocked. 
+
+Method 2: Joystick Sequence (GC or VR2 Controllers)
+If the horn method doesn't work, try this common alternative sequence:
+
+    Turn on the controller.
+    Push the joystick full forward until you hear a beep.
+    Pull the joystick full backward until you hear another beep.
+    Release the joystick to its central position. You should hear one long beep confirming it is unlocked. 
+
+Additional Troubleshooting
+
+    Freewheel Levers: If the chair powers on but won't move (and isn't beeping/scrolling), ensure the manual freewheel levers are in the "Drive" (locked) position. For most Elite models, rotate or pull the levers toward the seat to engage the motors.
+    Check Connections: If the chair still won't respond, ensure the main controller cable is securely plugged into the power base.
+    Battery Voltage: A single flashing red LED typically means the battery is too low to operate and needs immediate charging. 

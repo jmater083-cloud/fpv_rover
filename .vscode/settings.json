@@ -1,0 +1,18 @@
+{
+  // Workspace settings for the FPV Rover project (Visual Studio Code).
+  //
+  // Load a shared stylesheet into the built-in Markdown preview so the project
+  // docs render in a monospace font (Courier New, 12pt). This keeps the ASCII
+  // diagrams and tables in component_placement.md / wiring_chart.md aligned.
+  //
+  // Note: Markdown itself has no font-size/font-family syntax, and VS Code's
+  // Markdown preview STRIPS inline <style> tags and style="" attributes from
+  // .md files for security -- that is why a font set inside a .md file does
+  // "not keep". The font must come from a stylesheet loaded here. After adding
+  // this file, run "Developer: Reload Window" (Ctrl+Shift+P) and reopen the
+  // preview. If the relative path is not honored, use an absolute URI instead:
+  //   "markdown.styles": ["file:///d:/projects/FPV_Rover/docs-style.css"]
+  "markdown.styles": [
+    "./docs-style.css"
+  ]
+}

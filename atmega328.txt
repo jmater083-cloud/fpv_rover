@@ -1,0 +1,5 @@
+nanjing qinheng electronics (wch) UNO. ATMEGA328P at 9600 baud. board LGT8fx.
+Identifies as arduino nano with atmega328p processor.
+--- ATmega328P Chip ID Scanner ---
+Device Signature: 1E 95 16 
+Internal ID: 54 30 39 49 45 45 69 13 33 33 

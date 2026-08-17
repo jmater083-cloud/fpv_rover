@@ -1,0 +1,13 @@
+Main Board: ESP32-CAM (ESP-32S) with OV3660 camera version 3.3.7.
+Storage: 32GB SD card. GPIO 4 reserved for camera LED
+Chip ID: 10755368. This chip has 2 cores ESP32 
+Chip model = ESP32-D0WD-V3 Rev 301
+ESP32-CAM UART Programming Variant (16-pin header)
+Top row: 3.3V, IO16, IO0, GND, VCC, UDR, UDT, GND
+Bottom row: IO4, IO2, IO14, IO15, IO13, IO12, GND, 5V
+GPIO 32 and 33 are NOT available on the header
+Pins: SDA=15, SCL=16.
+Camera data pins (D0-D7, PCLK, HREF, VSYNC) are connected internally, not exposed. 
+pin_sccb_sda = 26, .pin_sccb_scl = 27,
+reference https://docs.espressif.com/projects/arduino-esp32/en/latest/migration_guides/2.x_to_3.0.html#ledc
+upload using the esp32-cam v2.0

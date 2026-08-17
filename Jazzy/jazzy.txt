@@ -1,0 +1,8 @@
+(1/2) Hacking the joystick interface on a Jazzy Select Mobility Scooter Wheelchair for an Arduino 
+https://www.youtube.com/watch?v=fLue5p1RQMk
+(2/2) Hacking the a Jazzy Select Mobility Scooter Wheelchair for Remote Control 
+https://www.youtube.com/watch?v=WzRYP86gxpY
+
+
+Noob project: Wheelchair drive train, gasoline mower with 2-blade deck
+https://discuss.ardupilot.org/t/noob-project-wheelchair-drive-train-gasoline-mower-with-2-blade-deck/137678

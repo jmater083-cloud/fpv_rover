@@ -1,0 +1,31 @@
+/*
+ * docs-style.css
+ *
+ * Stylesheet loaded by VS Code's built-in Markdown preview via the
+ * `markdown.styles` setting (see .vscode/settings.json).
+ *
+ * Why this file exists:
+ *   The FPV Rover docs (wiring_chart.md, component_placement.md, ...) make heavy
+ *   use of ASCII diagrams and aligned tables. Those only stay aligned when the
+ *   preview renders in a *monospace* typeface, so this stylesheet forces the
+ *   preview to use "Courier New" at 12pt for readable, column-aligned docs.
+ *
+ *   IMPORTANT: Markdown itself has NO font or font-size syntax. If you paste
+ *   `<span style="font-family:Courier New">` or `<style>` tags directly into a
+ *   .md file, VS Code's markdown preview STRIPS them (sanitizes HTML for safety),
+ *   which is exactly why "the font doesn't keep" when set inside the document.
+ *   The font lives in this CSS file and is applied by VS Code's preview engine,
+ *   not by the .md source.
+ *
+ *   To apply: reload the window (Ctrl+Shift+P -> "Developer: Reload Window") and
+ *   reopen the markdown preview of the docs. If the relative path isn't picked
+ *   up, use an absolute file URI instead, e.g.
+ *     "markdown.styles": ["file:///d:/projects/FPV_Rover/docs-style.css"]
+ */
+
+body,
+.markdown-body {
+  font-family: "Courier New", Courier, monospace !important;
+  font-size: 12pt !important;
+  line-height: 1.4 !important;
+}
