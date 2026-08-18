@@ -122,22 +122,31 @@ void helperPrintln(const String &line) {
   helperSerial.println(line);
 }
 
+const char* i2cDeviceName(uint8_t addr) {
+  switch(addr) {
+    case 0x40: return "INA219 (12V Bus)";
+    case 0x44: return "INA219 (5V Bus)";
+    case 0x27: return "MCP23017 (GPIO Expander)";
+    case 0x68: return "MPU6050 (IMU)";
+    default:   return "UNKNOWN";
+  }
+}
+
 void scanI2C() {
-  helperSerial.print(F("I2C:"));
+  String result = "";
   bool any = false;
   for (uint8_t addr = 1; addr < 127; addr++) {
     Wire.beginTransmission(addr);
     uint8_t err = Wire.endTransmission();
     if (err == 0) {
-      if (any) helperSerial.print(' ');
-      helperSerial.print(F("0x"));
-      if (addr < 16) helperSerial.print('0');
-      helperSerial.print(addr, HEX);
+      if (any) result += ",";
+      char hexAddr[8];
+      snprintf(hexAddr, sizeof(hexAddr), "0x%02X", addr);
+      result += String(hexAddr) + "=" + i2cDeviceName(addr);
       any = true;
     }
   }
-  if (!any) helperSerial.print(F("None"));
-  helperSerial.println();
+  helperPrintln("I2C:" + (any ? result : "None"));
 }
 
 void sendStatusSnapshot() {
@@ -420,6 +429,8 @@ void parseHelperLine(String line) {
     else setWifiLedMode(0);
   } else if (line == "STATUS") {
     sendStatusSnapshot();
+  } else if (line == "I2CSCAN") {
+    scanI2C();
   }
 }
 

@@ -22,17 +22,17 @@ System Overview:
 // Camera pin & board definitions
 #include "board_config.h"
 
-// Helper status (from UNO)
-String comm_bat12 = "--";
-String comm_bat5 = "--";
-String comm_ina12 = "--";
-String comm_ina5 = "--";
-String comm_mcp = "--";
-String comm_i2c = "--";
-String comm_sonar = "--";
-String comm_cliff = "--";
-String comm_gps = "--";
-String comm_sound = "--";
+// Helper status (received from UNO, shared with app_httpd.cpp via extern)
+String helper_bat12 = "--";
+String helper_bat5 = "--";
+String helper_ina12 = "--";
+String helper_ina5 = "--";
+String helper_mcp = "--";
+String helper_i2c = "None";
+String helper_sonar = "0,0,0,0,0";
+String helper_cliff = "0,0,0,0";
+String helper_gps = "--,--,NOFIX,--,--";
+String helper_sound = "0,0";
 
 // WiFi credentials
 const char *ssid = "NID7417";
@@ -61,16 +61,16 @@ static void handleHelperLine(const String &line) {
   String val = line.substring(colon + 1);
   val.trim();
 
-  if (key == "V12") comm_bat12 = val;
-  else if (key == "V5") comm_bat5 = val;
-  else if (key == "INA12") comm_ina12 = val;
-  else if (key == "INA5") comm_ina5 = val;
-  else if (key == "MCP") comm_mcp = val;
-  else if (key == "I2C") comm_i2c = val;
-  else if (key == "DIST") comm_sonar = val;
-  else if (key == "CLIFF") comm_cliff = val;
-  else if (key == "GPS") comm_gps = val;
-  else if (key == "SOUND") comm_sound = val;
+  if (key == "V12") helper_bat12 = val;
+  else if (key == "V5") helper_bat5 = val;
+  else if (key == "INA12") helper_ina12 = val;
+  else if (key == "INA5") helper_ina5 = val;
+  else if (key == "MCP") helper_mcp = val;
+  else if (key == "I2C") helper_i2c = val;
+  else if (key == "DIST") helper_sonar = val;
+  else if (key == "CLIFF") helper_cliff = val;
+  else if (key == "GPS") helper_gps = val;
+  else if (key == "SOUND") helper_sound = val;
 }
 
 void sendHelperCmd(const String& cmd) {

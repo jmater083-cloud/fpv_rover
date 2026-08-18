@@ -50,17 +50,17 @@ static bool drive_enabled = false;
 #define HELPER_UART_TX_PIN 13
 #define HELPER_UART_RX_PIN 14
 
-// Helper status (from UNO)
-String helper_bat12 = "--";
-String helper_bat5 = "--";
-String helper_ina12 = "--";
-String helper_ina5 = "--";
-String helper_mcp = "--";
-String helper_i2c = "--";
-String helper_sonar = "0,0,0,0,0";
-String helper_cliff = "0,0,0,0";
-String helper_gps = "--,--,NOFIX,--,--";
-String helper_sound = "0,0";
+// Helper status (received from UNO, defined in FPV_Rover.ino, shared via extern)
+extern String helper_bat12;
+extern String helper_bat5;
+extern String helper_ina12;
+extern String helper_ina5;
+extern String helper_mcp;
+extern String helper_i2c;
+extern String helper_sonar;
+extern String helper_cliff;
+extern String helper_gps;
+extern String helper_sound;
 extern String helper_last_line;
 extern unsigned long helper_last_ms;
 
@@ -117,6 +117,14 @@ static const char INDEX_HTML[] PROGMEM = R"HTML(
     .status-light{width:13px;height:13px;border-radius:50%;background:#42515a;box-shadow:inset 0 0 0 1px #60717a;}
     .status-light.ok{background:#63f59f;box-shadow:0 0 10px rgba(99,245,159,.9), inset 0 0 0 1px #d6ffe5;}
     .status-light.bad{background:#ff7b8a;box-shadow:0 0 10px rgba(255,123,138,.9), inset 0 0 0 1px #ffd4db;}
+    .i2c-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px;}
+    .i2c-table th{text-align:left;padding:4px 6px;border-bottom:2px solid #2c3a44;font-size:11px;opacity:.7;}
+    .i2c-table td{padding:4px 6px;border-bottom:1px solid #2c3a44;}
+    .i2c-table tr:hover{background:rgba(43,123,255,0.1);}
+    .i2c-grid{display:grid;grid-template-columns:80px 1fr;gap:2px;font-size:12px;}
+    .i2c-grid div{padding:2px 4px;}
+    .i2c-grid .addr{background:#2c3a44;border-radius:4px;}
+    .i2c-grid .name{padding-left:6px;}
   </style>
 </head>
 <body>
@@ -131,6 +139,23 @@ static const char INDEX_HTML[] PROGMEM = R"HTML(
     <div class="card auto" id="bat12Card"><div class="label">Battery (12V)</div><div id="bat12">--</div></div>
     <div class="card auto" id="bat5Card"><div class="label">Battery (5V)</div><div id="bat5">--</div></div>
     <div class="card auto"><div class="label">GPS</div><div id="gpsLine">--</div></div>
+  </div>
+  <div class="row">
+    <div class="card" id="i2cCard" style="min-width:350px;max-width:600px;">
+      <div class="label">I2C Bus Scan</div>
+      <div class="status-item">
+        <span class="status-light" id="i2cStatusLight"></span>
+        <span id="i2cStatusText" style="font-size:11px;color:#90a4ae;">Waiting for scan...</span>
+      </div>
+      <button class="btn" style="margin-top:4px;padding:4px 8px;font-size:11px;" onclick="refreshI2cScan()">Refresh Scan</button>
+      <table class="i2c-table">
+        <thead>
+          <tr><th>Address</th><th>Device</th></tr>
+        </thead>
+        <tbody id="i2cTableBody"></tbody>
+      </table>
+      <div id="i2cEmpty" class="label" style="margin-top:4px;">No devices found</div>
+    </div>
   </div>
   <div class="row controls">
     <div class="card auto">
@@ -261,6 +286,32 @@ static const char INDEX_HTML[] PROGMEM = R"HTML(
       el.innerText = label + ' ' + value + suffix;
       el.classList.toggle('bad', !!bad);
     }
+    function refreshI2cScan(){
+      fetch('/i2cscan').catch(()=>{});
+    }
+    function updateI2CTable(d){
+      const tbody=document.getElementById('i2cTableBody');
+      const empty=document.getElementById('i2cEmpty');
+      const statusText=document.getElementById('i2cStatusText');
+      const statusLight=document.getElementById('i2cStatusLight');
+      if (!d.i2c) return;
+      const addrs=d.i2c.addresses || [];
+      const count=d.i2c.count || addrs.length;
+      statusText.innerText = count > 0 ? (count + ' device(s) found') : 'No devices found';
+      statusLight.classList.remove('ok','bad');
+      statusLight.classList.add(count > 0 ? 'ok' : 'bad');
+      if (addrs.length > 0) {
+        empty.style.display='none';
+        let html='';
+        addrs.forEach(function(dev){
+          html += '<tr><td>'+dev.address+'</td><td>'+dev.name+'</td></tr>';
+        });
+        tbody.innerHTML = html;
+      } else {
+        empty.style.display='block';
+        tbody.innerHTML='';
+      }
+    }
     function updateSensors(){
       fetch('/sensors').then(r=>r.json()).then(d=>{
         const sonar=d.sonar || {};
@@ -278,6 +329,7 @@ static const char INDEX_HTML[] PROGMEM = R"HTML(
         setSensorText('soundLabel', soundText, d.sound ? d.sound.age_ms : '--', ' ms', d.sound && d.sound.hit);
         document.getElementById('gpsLine').innerText =
           d.gps && d.gps.fix ? (d.gps.lat + ', ' + d.gps.lon) : 'No fix';
+        updateI2CTable(d);
       }).catch(()=>{});
     }
     function updateStatus(){
@@ -842,6 +894,42 @@ static int csvInt(const String &line, uint8_t index) {
   return (v == "--") ? 0 : v.toInt();
 }
 
+// Parse I2C scan result "0x40=INA219 (12V Bus),0x68=MPU6050 (IMU)" or "None"
+// into a JSON object: {"count":N,"addresses":[{"address":"0x40","name":"..."}]}
+static String parseI2CJson(const String &raw) {
+  String addresses = "[";
+  int count = 0;
+  if (raw != "None" && raw.length() > 0) {
+    bool first = true;
+    int start = 0;
+    int len = raw.length();
+    while (start <= len) {
+      int comma = raw.indexOf(',', start);
+      String pair;
+      if (comma == -1) {
+        pair = raw.substring(start);
+        start = len + 1;
+      } else {
+        pair = raw.substring(start, comma);
+        start = comma + 1;
+      }
+      pair.trim();
+      if (pair.length() > 0) {
+        if (!first) addresses += ",";
+        first = false;
+        count++;
+        int eq = pair.indexOf('=');
+        String addr = (eq > 0) ? pair.substring(0, eq) : pair;
+        String name = (eq > 0) ? pair.substring(eq + 1) : "UNKNOWN";
+        addresses += "{\"address\":\"" + addr + "\",\"name\":\"" + name + "\"}";
+      }
+      if (comma == -1) break;
+    }
+  }
+  addresses += "]";
+  return "{\"count\":" + String(count) + ",\"addresses\":" + addresses + "}";
+}
+
 static esp_err_t sensors_handler(httpd_req_t *req) {
   String gpsLat = csvField(helper_gps, 0);
   String gpsLon = csvField(helper_gps, 1);
@@ -862,7 +950,8 @@ static esp_err_t sensors_handler(httpd_req_t *req) {
           ",\"lat\":\"" + gpsLat + "\",\"lon\":\"" + gpsLon +
           "\",\"home_lat\":\"" + gpsHomeLat + "\",\"home_lon\":\"" + gpsHomeLon + "\"},";
   json += "\"sound\":{\"hit\":" + String(csvInt(helper_sound, 0) ? "true" : "false") +
-          ",\"age_ms\":" + String(csvInt(helper_sound, 1)) + "}";
+          ",\"age_ms\":" + String(csvInt(helper_sound, 1)) + "},";
+  json += "\"i2c\":" + parseI2CJson(helper_i2c);
   json += "}";
   httpd_resp_set_type(req, "application/json");
   httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
@@ -952,6 +1041,14 @@ static esp_err_t uart_handler(httpd_req_t *req) {
   httpd_resp_set_type(req, "application/json");
   httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
   return httpd_resp_send(req, json.c_str(), json.length());
+}
+
+// Trigger an on-demand I2C bus scan on the UNO helper
+static esp_err_t i2c_scan_handler(httpd_req_t *req) {
+  sendHelperCmd("I2CSCAN");
+  Serial.println("[I2C] Scan requested from web UI");
+  httpd_resp_set_type(req, "text/plain");
+  return httpd_resp_send(req, "OK", 2);
 }
 
 static esp_err_t orient_handler(httpd_req_t *req) {
@@ -1318,7 +1415,7 @@ static esp_err_t index_handler(httpd_req_t *req) {
 
 void startCameraServer() {
   httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-  config.max_uri_handlers = 24;
+  config.max_uri_handlers = 26;
 
   httpd_uri_t index_uri = {
     .uri = "/",
@@ -1378,6 +1475,13 @@ void startCameraServer() {
     .uri = "/sensors",
     .method = HTTP_GET,
     .handler = sensors_handler,
+    .user_ctx = NULL
+  };
+
+  httpd_uri_t i2cscan_uri = {
+    .uri = "/i2cscan",
+    .method = HTTP_GET,
+    .handler = i2c_scan_handler,
     .user_ctx = NULL
   };
 
@@ -1556,6 +1660,7 @@ void startCameraServer() {
     httpd_register_uri_handler(camera_httpd, &battery_uri);
     httpd_register_uri_handler(camera_httpd, &uart_uri);
     httpd_register_uri_handler(camera_httpd, &sensors_uri);
+    httpd_register_uri_handler(camera_httpd, &i2cscan_uri);
     httpd_register_uri_handler(camera_httpd, &orient_uri);
     httpd_register_uri_handler(camera_httpd, &drive_uri);
     httpd_register_uri_handler(camera_httpd, &speed_uri);
